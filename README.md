@@ -1,10 +1,40 @@
 # Subscribe Contract
 
+[中文版](README_cn.md)
+
 A smart contract for authorized ERC20 token deduction in subscription and service fee scenarios.
 
 ## Overview
 
 The Subscribe contract provides a solution for services requiring regular subscription fees or on-demand charges from users using ERC20 tokens (such as USDC, DAI, or custom project tokens). It allows an authorized address (the "casher") to "pull" or "deduct" specified amounts of tokens from pre-authorized user addresses on behalf of a designated recipient address.
+
+## Why Not Use the Approve Mechanism Directly?
+
+While the ERC20 standard itself provides an approve mechanism, using it directly has some limitations and risks:
+
+1. **Allowance Management Challenges**: Directly approving a service provider means users must trust that address not to withdraw the entire authorized amount at once.
+
+2. **Lack of Transparency**: Direct transfers lack clear records or events indicating the purpose of the transfer (e.g., subscription fee).
+
+3. **Logic Separation**: Mixing business logic with payment processing leads to increased code complexity and security risks.
+
+4. **Batch Processing Difficulties**: Processing deductions for multiple users directly requires multiple transactions, which is inefficient and costly.
+
+5. **Management Complexity**: Maintaining information about which users have paid, when they paid, and how much requires additional storage and management.
+
+Benefits of using the Subscribe contract:
+
+1. **Role Separation**: Clear distinction between owner, casher, and fund recipient, enhancing security and auditability.
+
+2. **Unified Interface**: Provides a standardized interface for subscriptions and service fees, simplifying integration and management.
+
+3. **Transparent Records**: Records all transactions through Charge events, increasing transparency.
+
+4. **Batch Processing**: Supports processing payments for multiple users in a single transaction, saving gas costs.
+
+5. **Flexible Configuration**: Ability to update casher and recipient addresses to adapt to changing business needs.
+
+6. **Security Focused**: Specifically designed for handling token deductions, following best security practices.
 
 ## How It Works
 
