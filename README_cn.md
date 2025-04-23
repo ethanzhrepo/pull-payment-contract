@@ -8,6 +8,16 @@
 
 Pull Payment 合约为需要定期收取订阅费或按需收费的服务提供解决方案，使用 ERC20 代币（如 USDC、DAI 或自定义项目代币）。它允许授权地址（"收款人"）代表指定的接收地址从预先授权的用户地址"提取"或"扣除"指定数量的代币。
 
+## 合约地址：
+
+| Contract Name         | Chain           | Address | Verification |
+|-----------------------|------------------|---------|--------------|
+| PullPaymentFactory    | Ethereum         | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://etherscan.io/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | BSC              | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://bscscan.com/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Base             | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://basescan.org/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Polygon (POW)    | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://polygonscan.com/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Arbitrum One     | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://arbiscan.io/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+
 ## 为什么不直接使用approve机制？
 
 虽然 ERC20 标准本身提供了 approve 机制，但直接使用它存在一些局限性和风险：

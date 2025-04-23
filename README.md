@@ -8,6 +8,17 @@ A smart contract for authorized ERC20 token deduction in subscription and servic
 
 The Pull Payment contract provides a solution for services requiring regular subscription fees or on-demand charges from users using ERC20 tokens (such as USDC, DAI, or custom project tokens). It allows an authorized address (the "casher") to "pull" or "deduct" specified amounts of tokens from pre-authorized user addresses on behalf of a designated recipient address.
 
+## Deployment
+
+
+| Contract Name         | Chain           | Address | Verification |
+|-----------------------|------------------|---------|--------------|
+| PullPaymentFactory    | Ethereum         | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://etherscan.io/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | BSC              | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://bscscan.com/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Base             | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://basescan.org/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Polygon (POW)    | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://polygonscan.com/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+| PullPaymentFactory    | Arbitrum One     | [0xBd315E617855990fede6024264d1Db9b8DB3E9d8](https://arbiscan.io/address/0xBd315E617855990fede6024264d1Db9b8DB3E9d8) | ✅ Verified |
+
 ## Why Not Use the Approve Mechanism Directly?
 
 While the ERC20 standard itself provides an approve mechanism, using it directly has some limitations and risks:
