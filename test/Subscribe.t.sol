@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {Subscribe} from "../src/Subscribe.sol";
-import {SubscribeFactory} from "../src/SubscribeFactory.sol";
+import {PullPayment} from "../src/PullPayment.sol";
+import {PullPaymentFactory} from "../src/PullPaymentFactory.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // Mock ERC20 token for testing
@@ -17,8 +17,8 @@ contract MockToken is ERC20 {
     }
 }
 
-contract SubscribeTest is Test {
-    Subscribe public subscribe;
+contract PullPaymentTest is Test {
+    PullPayment public pullPayment;
     MockToken public token;
     address public owner;
     address public casher;
@@ -34,7 +34,7 @@ contract SubscribeTest is Test {
         user1 = makeAddr("user1");
         user2 = makeAddr("user2");
 
-        subscribe = new Subscribe(owner, casher, recipient);
+        pullPayment = new PullPayment(owner, casher, recipient);
         token = new MockToken();
 
         // Transfer tokens to test users
@@ -45,92 +45,92 @@ contract SubscribeTest is Test {
 
     // Test constructor sets owner and casher correctly
     function testConstructor() public {
-        Subscribe newSubscribe = new Subscribe(user1, user2, recipient);
-        assertEq(newSubscribe.owner(), user1);
-        assertEq(newSubscribe.casherAddress(), user2);
-        assertEq(newSubscribe.toAddress(), recipient);
+        PullPayment newPullPayment = new PullPayment(user1, user2, recipient);
+        assertEq(newPullPayment.owner(), user1);
+        assertEq(newPullPayment.casherAddress(), user2);
+        assertEq(newPullPayment.toAddress(), recipient);
     }
 
     // Test constructor reverts when owner and casher are the same
     function testConstructorRevertsSameOwnerAndCasher() public {
         vm.expectRevert("Owner and casher cannot be the same address");
-        new Subscribe(user1, user1, recipient);
+        new PullPayment(user1, user1, recipient);
     }
     
     // Test constructor reverts when casher and to address are the same
     function testConstructorRevertsSameCasherAndToAddress() public {
         vm.expectRevert("Casher and to address cannot be the same address");
-        new Subscribe(user1, user2, user2);
+        new PullPayment(user1, user2, user2);
     }
     
     // Test constructor reverts when to address is zero
     function testConstructorRevertsZeroToAddress() public {
         vm.expectRevert("To address cannot be the zero address");
-        new Subscribe(user1, user2, address(0));
+        new PullPayment(user1, user2, address(0));
     }
     
     // Test constructor reverts when casher address is zero
     function testConstructorRevertsZeroCasherAddress() public {
         vm.expectRevert("Casher address cannot be the zero address");
-        new Subscribe(user1, address(0), recipient);
+        new PullPayment(user1, address(0), recipient);
     }
 
     // Test setting casher address
     function testSetCasherAddress() public {
         address newCasher = makeAddr("newCasher");
-        subscribe.setCasherAddress(newCasher);
-        assertEq(subscribe.casherAddress(), newCasher);
+        pullPayment.setCasherAddress(newCasher);
+        assertEq(pullPayment.casherAddress(), newCasher);
     }
 
     // Test setting recipient address
     function testSetToAddress() public {
         address newRecipient = makeAddr("newRecipient");
-        subscribe.setToAddress(newRecipient);
-        assertEq(subscribe.toAddress(), newRecipient);
+        pullPayment.setToAddress(newRecipient);
+        assertEq(pullPayment.toAddress(), newRecipient);
     }
     
     // Test setting casher address to zero address
     function testSetCasherAddressRevertsZeroAddress() public {
         vm.expectRevert("Casher address cannot be the zero address");
-        subscribe.setCasherAddress(address(0));
+        pullPayment.setCasherAddress(address(0));
     }
     
     // Test setting toAddress to zero address
     function testSetToAddressRevertsZeroAddress() public {
         vm.expectRevert("To address cannot be the zero address");
-        subscribe.setToAddress(address(0));
+        pullPayment.setToAddress(address(0));
     }
     
     // Test setting casher address to the same as toAddress
     function testSetCasherAddressRevertsSameAsToAddress() public {
         vm.expectRevert("Casher address cannot be the same as the to address");
-        subscribe.setCasherAddress(recipient);
+        pullPayment.setCasherAddress(recipient);
     }
     
     // Test setting toAddress to the same as casher
     function testSetToAddressRevertsSameAsCasher() public {
         vm.expectRevert("To address cannot be the same as the casher address");
-        subscribe.setToAddress(casher);
+        pullPayment.setToAddress(casher);
     }
     
     // Test setting casher address to owner address
     function testSetCasherAddressRevertsOwnerAddress() public {
         vm.expectRevert("Casher address cannot be the owner");
-        subscribe.setCasherAddress(owner);
+        pullPayment.setCasherAddress(owner);
     }
 
     // Test that only owner can set casher address
     function testOnlyOwnerCanSetCasherAddress() public {
         vm.prank(user1);
         vm.expectRevert();
-        subscribe.setCasherAddress(user1);
+        pullPayment.setCasherAddress(user1);
     }
 
     // Test that only owner can set recipient address
     function testOnlyOwnerCanSetToAddress() public {
         vm.prank(user1);
         vm.expectRevert();
-        subscribe.setToAddress(user1);
+        pullPayment.setToAddress(user1);
     }
 
     // Test single charge
@@ -139,7 +139,7 @@ contract SubscribeTest is Test {
 
         // Approve contract to spend tokens
         vm.startPrank(user1);
-        token.approve(address(subscribe), amount);
+        token.approve(address(pullPayment), amount);
         vm.stopPrank();
 
         uint256 recipientBalanceBefore = token.balanceOf(recipient);
@@ -147,7 +147,7 @@ contract SubscribeTest is Test {
 
         // Execute charge
         vm.prank(casher);
-        subscribe.charge(address(token), user1, amount);
+        pullPayment.charge(address(token), user1, amount);
 
         // Verify balances
         assertEq(token.balanceOf(recipient), recipientBalanceBefore + amount);
@@ -160,33 +160,33 @@ contract SubscribeTest is Test {
 
         // Approve contract to spend tokens
         vm.startPrank(user1);
-        token.approve(address(subscribe), amount);
+        token.approve(address(pullPayment), amount);
 
         // Try to charge as user1 (should fail)
         vm.expectRevert("Only casher can charge");
-        subscribe.charge(address(token), user1, amount);
+        pullPayment.charge(address(token), user1, amount);
         vm.stopPrank();
 
         // Try to charge as owner (should fail)
         vm.expectRevert("Only casher can charge");
-        subscribe.charge(address(token), user1, amount);
+        pullPayment.charge(address(token), user1, amount);
     }
 
     // Test charge with zero amount
     function testChargeWithZeroAmount() public {
         vm.prank(casher);
         vm.expectRevert("Amount must be greater than 0");
-        subscribe.charge(address(token), user1, 0);
+        pullPayment.charge(address(token), user1, 0);
     }
 
     // Test charge with same from and to address
     function testChargeWithSameFromAndToAddress() public {
         // Set recipient to user1
-        subscribe.setToAddress(user1);
+        pullPayment.setToAddress(user1);
 
         vm.prank(casher);
         vm.expectRevert("To address cannot be the same as the from address");
-        subscribe.charge(address(token), user1, 100);
+        pullPayment.charge(address(token), user1, 100);
     }
 
     // Test charge with insufficient balance
@@ -195,7 +195,7 @@ contract SubscribeTest is Test {
 
         vm.prank(casher);
         vm.expectRevert();
-        subscribe.charge(address(token), user1, tooMuchAmount);
+        pullPayment.charge(address(token), user1, tooMuchAmount);
     }
 
     // Test charge with insufficient allowance
@@ -205,7 +205,7 @@ contract SubscribeTest is Test {
         // No approval given
         vm.prank(casher);
         vm.expectRevert();
-        subscribe.charge(address(token), user1, amount);
+        pullPayment.charge(address(token), user1, amount);
     }
 
     // Test batch charge
@@ -215,11 +215,11 @@ contract SubscribeTest is Test {
 
         // Approve contract to spend tokens
         vm.startPrank(user1);
-        token.approve(address(subscribe), amount1);
+        token.approve(address(pullPayment), amount1);
         vm.stopPrank();
 
         vm.startPrank(user2);
-        token.approve(address(subscribe), amount2);
+        token.approve(address(pullPayment), amount2);
         vm.stopPrank();
 
         uint256 recipientBalanceBefore = token.balanceOf(recipient);
@@ -236,7 +236,7 @@ contract SubscribeTest is Test {
         amounts[1] = amount2;
 
         vm.prank(casher);
-        subscribe.batchCharge(address(token), users, amounts);
+        pullPayment.batchCharge(address(token), users, amounts);
 
         // Verify balances
         assertEq(
@@ -258,46 +258,46 @@ contract SubscribeTest is Test {
 
         vm.prank(casher);
         vm.expectRevert("From addresses and amounts must have the same length");
-        subscribe.batchCharge(address(token), users, amounts);
+        pullPayment.batchCharge(address(token), users, amounts);
     }
 
     // Test withdraw function
     function testWithdraw() public {
         // Transfer some tokens to the contract
         uint256 amount = 100 * 10 ** 18;
-        token.transfer(address(subscribe), amount);
+        token.transfer(address(pullPayment), amount);
 
         uint256 ownerBalanceBefore = token.balanceOf(owner);
 
         // Execute withdraw
-        subscribe.withdraw(address(token));
+        pullPayment.withdraw(address(token));
 
         // Verify balances
         assertEq(token.balanceOf(owner), ownerBalanceBefore + amount);
-        assertEq(token.balanceOf(address(subscribe)), 0);
+        assertEq(token.balanceOf(address(pullPayment)), 0);
     }
 
     // Test that only owner can withdraw
     function testOnlyOwnerCanWithdraw() public {
         vm.prank(user1);
         vm.expectRevert();
-        subscribe.withdraw(address(token));
+        pullPayment.withdraw(address(token));
     }
     
     // Test event emission for setCasherAddress
     function testSetCasherAddressEvent() public {
         address newCasher = makeAddr("newCasher");
         vm.expectEmit(true, true, false, true);
-        emit Subscribe.CasherAddressSet(casher, newCasher);
-        subscribe.setCasherAddress(newCasher);
+        emit PullPayment.CasherAddressSet(casher, newCasher);
+        pullPayment.setCasherAddress(newCasher);
     }
     
     // Test event emission for setToAddress
     function testSetToAddressEvent() public {
         address newToAddress = makeAddr("newToAddress");
         vm.expectEmit(true, true, false, true);
-        emit Subscribe.ToAddressSet(recipient, newToAddress);
-        subscribe.setToAddress(newToAddress);
+        emit PullPayment.ToAddressSet(recipient, newToAddress);
+        pullPayment.setToAddress(newToAddress);
     }
     
     // Test event emission for charge
@@ -306,13 +306,13 @@ contract SubscribeTest is Test {
         
         // Approve contract to spend tokens
         vm.startPrank(user1);
-        token.approve(address(subscribe), amount);
+        token.approve(address(pullPayment), amount);
         vm.stopPrank();
         
         vm.expectEmit(true, true, false, true);
-        emit Subscribe.Charge(address(token), user1, amount);
+        emit PullPayment.Charge(address(token), user1, amount);
         
         vm.prank(casher);
-        subscribe.charge(address(token), user1, amount);
+        pullPayment.charge(address(token), user1, amount);
     }
 }

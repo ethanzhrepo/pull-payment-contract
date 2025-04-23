@@ -2,11 +2,11 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-import {SubscribeFactory} from "../src/SubscribeFactory.sol";
-import {Subscribe} from "../src/Subscribe.sol";
+import {PullPaymentFactory} from "../src/PullPaymentFactory.sol";
+import {PullPayment} from "../src/PullPayment.sol";
 
-contract SubscribeFactoryDeployer is Script {
-    SubscribeFactory public factory;
+contract PullPaymentFactoryDeployer is Script {
+    PullPaymentFactory public factory;
 
     function setUp() public {}
 
@@ -16,17 +16,17 @@ contract SubscribeFactoryDeployer is Script {
         // Begin broadcast with deployer's private key
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy SubscribeFactory contract
-        factory = new SubscribeFactory();
+        // Deploy PullPaymentFactory contract
+        factory = new PullPaymentFactory();
 
-        console.log("SubscribeFactory deployed at:", address(factory));
+        console.log("PullPaymentFactory deployed at:", address(factory));
 
         vm.stopBroadcast();
     }
 }
 
-contract SubscribeDeployer is Script {
-    SubscribeFactory public factory;
+contract PullPaymentDeployer is Script {
+    PullPaymentFactory public factory;
 
     function setUp() public {}
 
@@ -43,26 +43,26 @@ contract SubscribeDeployer is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Get factory instance
-        factory = SubscribeFactory(factoryAddress);
+        factory = PullPaymentFactory(factoryAddress);
 
         // Calculate the predicted address
-        address predictedAddress = factory.computeSubscribeAddress(
+        address predictedAddress = factory.computePullPaymentAddress(
             ownerAddress,
             casherAddress,
             toAddress,
             salt
         );
-        console.log("Predicted Subscribe contract address:", predictedAddress);
+        console.log("Predicted PullPayment contract address:", predictedAddress);
 
         // Deploy Subscribe contract through factory
-        address subscribeAddress = factory.createSubscribe(
+        address pullPaymentAddress = factory.createPullPayment(
             ownerAddress,
             casherAddress,
             toAddress,
             salt
         );
 
-        console.log("Subscribe contract deployed at:", subscribeAddress);
+        console.log("PullPayment contract deployed at:", pullPaymentAddress);
         console.log("Owner:", ownerAddress);
         console.log("Casher:", casherAddress);
         console.log("To Address:", toAddress);
@@ -71,8 +71,8 @@ contract SubscribeDeployer is Script {
     }
 }
 
-contract SubscribeAddressCalculator is Script {
-    SubscribeFactory public factory;
+contract PullPaymentAddressCalculator is Script {
+    PullPaymentFactory public factory;
 
     function setUp() public {}
 
@@ -87,17 +87,17 @@ contract SubscribeAddressCalculator is Script {
         // No broadcast needed for this script as it's read-only
 
         // Get factory instance
-        factory = SubscribeFactory(factoryAddress);
+        factory = PullPaymentFactory(factoryAddress);
 
         // Calculate the predicted address
-        address predictedAddress = factory.computeSubscribeAddress(
+        address predictedAddress = factory.computePullPaymentAddress(
             ownerAddress,
             casherAddress,
             toAddress,
             salt
         );
 
-        console.log("Calculated Subscribe contract address:");
+        console.log("Calculated PullPayment contract address:");
         console.log("  Factory:", factoryAddress);
         console.log("  Owner:", ownerAddress);
         console.log("  Casher:", casherAddress);
@@ -108,7 +108,7 @@ contract SubscribeAddressCalculator is Script {
 }
 
 contract MultipleSaltCalculator is Script {
-    SubscribeFactory public factory;
+    PullPaymentFactory public factory;
 
     function setUp() public {}
 
@@ -124,9 +124,9 @@ contract MultipleSaltCalculator is Script {
         // No broadcast needed for this script as it's read-only
 
         // Get factory instance
-        factory = SubscribeFactory(factoryAddress);
+        factory = PullPaymentFactory(factoryAddress);
 
-        console.log("Calculating Subscribe contract addresses:");
+        console.log("Calculating PullPayment contract addresses:");
         console.log("  Factory:", factoryAddress);
         console.log("  Owner:", ownerAddress);
         console.log("  Casher:", casherAddress);
@@ -135,7 +135,7 @@ contract MultipleSaltCalculator is Script {
         // Calculate addresses for multiple salts
         for (uint256 i = 0; i < count; i++) {
             bytes32 salt = bytes32(startSalt + i);
-            address predictedAddress = factory.computeSubscribeAddress(
+            address predictedAddress = factory.computePullPaymentAddress(
                 ownerAddress,
                 casherAddress,
                 toAddress,

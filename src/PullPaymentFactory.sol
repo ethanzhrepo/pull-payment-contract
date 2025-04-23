@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "./Subscribe.sol";
+import "./PullPayment.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 
-contract SubscribeFactory {
-    event SubscribeCreated(
-        address indexed subscribeAddress,
+contract PullPaymentFactory {
+    event PullPaymentCreated(
+        address indexed pullPaymentAddress,
         address indexed owner,
         address indexed casher,
         bytes32 salt
@@ -20,7 +20,7 @@ contract SubscribeFactory {
      * @param _salt A unique value to ensure unique addresses
      * @return The address where the contract will be deployed
      */
-    function computeSubscribeAddress(
+    function computePullPaymentAddress(
         address _owner,
         address _casher,
         address _toAddress,
@@ -48,7 +48,7 @@ contract SubscribeFactory {
 
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
-                type(Subscribe).creationCode,
+                type(PullPayment).creationCode,
                 abi.encode(_owner, _casher, _toAddress)
             )
         );
@@ -64,7 +64,7 @@ contract SubscribeFactory {
      * @param _salt A unique value to ensure unique addresses
      * @return The address of the created Subscribe contract
      */
-    function createSubscribe(
+    function createPullPayment(
         address _owner,
         address _casher,
         address _toAddress,
@@ -91,14 +91,14 @@ contract SubscribeFactory {
         );
 
         bytes memory bytecode = abi.encodePacked(
-            type(Subscribe).creationCode,
+            type(PullPayment).creationCode,
             abi.encode(_owner, _casher, _toAddress)
         );
 
-        address subscribeAddress = Create2.deploy(0, _salt, bytecode);
+        address pullPaymentAddress = Create2.deploy(0, _salt, bytecode);
 
-        emit SubscribeCreated(subscribeAddress, _owner, _casher, _salt);
+        emit PullPaymentCreated(pullPaymentAddress, _owner, _casher, _salt);
 
-        return subscribeAddress;
+        return pullPaymentAddress;
     }
 }

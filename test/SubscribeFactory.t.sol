@@ -2,12 +2,12 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {Subscribe} from "../src/Subscribe.sol";
-import {SubscribeFactory} from "../src/SubscribeFactory.sol";
+import {PullPayment} from "../src/PullPayment.sol";
+import {PullPaymentFactory} from "../src/PullPaymentFactory.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract SubscribeFactoryTest is Test {
-    SubscribeFactory public factory;
+contract PullPaymentFactoryTest is Test {
+    PullPaymentFactory public factory;
     address public owner;
     address public casher;
     address public toAddress;
@@ -15,7 +15,7 @@ contract SubscribeFactoryTest is Test {
     address public user2;
 
     function setUp() public {
-        factory = new SubscribeFactory();
+        factory = new PullPaymentFactory();
         owner = makeAddr("owner");
         casher = makeAddr("casher");
         toAddress = makeAddr("toAddress");
@@ -24,9 +24,9 @@ contract SubscribeFactoryTest is Test {
     }
 
     // Test computing contract address
-    function testComputeSubscribeAddress() public {
+    function testComputePullPaymentAddress() public {
         bytes32 salt = bytes32(uint256(1));
-        address computedAddress = factory.computeSubscribeAddress(
+        address computedAddress = factory.computePullPaymentAddress(
             owner,
             casher,
             toAddress,
@@ -37,7 +37,7 @@ contract SubscribeFactoryTest is Test {
         assertTrue(computedAddress != address(0));
 
         // Create the contract with the same parameters
-        address actualAddress = factory.createSubscribe(owner, casher, toAddress, salt);
+        address actualAddress = factory.createPullPayment(owner, casher, toAddress, salt);
 
         // Check that the computed address matches the actual address
         assertEq(computedAddress, actualAddress);
@@ -48,15 +48,15 @@ contract SubscribeFactoryTest is Test {
         bytes32 salt = bytes32(uint256(2));
 
         // Create contract
-        address subscribeAddress = factory.createSubscribe(owner, casher, toAddress, salt);
+        address pullPaymentAddress = factory.createPullPayment(owner, casher, toAddress, salt);
 
         // Verify contract was created
-        Subscribe subscribe = Subscribe(subscribeAddress);
+        PullPayment pullPayment = PullPayment(pullPaymentAddress);
 
         // Check owner and casher are set correctly
-        assertEq(subscribe.owner(), owner);
-        assertEq(subscribe.casherAddress(), casher);
-        assertEq(subscribe.toAddress(), toAddress);
+        assertEq(pullPayment.owner(), owner);
+        assertEq(pullPayment.casherAddress(), casher);
+        assertEq(pullPayment.toAddress(), toAddress);
     }
 
     // Test creating contract with same salt but different parameters
@@ -64,12 +64,12 @@ contract SubscribeFactoryTest is Test {
         bytes32 salt = bytes32(uint256(3));
 
         // Create first contract
-        address firstAddress = factory.createSubscribe(owner, casher, toAddress, salt);
+        address firstAddress = factory.createPullPayment(owner, casher, toAddress, salt);
         
         // The test should pass if we try to deploy to the same address
         // CREATE2 will revert if we try to deploy another contract to the same address
         vm.expectRevert();
-        factory.createSubscribe(owner, casher, toAddress, salt);
+        factory.createPullPayment(owner, casher, toAddress, salt);
     }
 
     // Test creating contract with same parameters but different salt
@@ -78,10 +78,10 @@ contract SubscribeFactoryTest is Test {
         bytes32 salt2 = bytes32(uint256(5));
 
         // Create first contract
-        address address1 = factory.createSubscribe(owner, casher, toAddress, salt1);
+        address address1 = factory.createPullPayment(owner, casher, toAddress, salt1);
 
         // Create second contract with same parameters but different salt
-        address address2 = factory.createSubscribe(owner, casher, toAddress, salt2);
+        address address2 = factory.createPullPayment(owner, casher, toAddress, salt2);
 
         // Verify different addresses
         assertTrue(address1 != address2);
@@ -93,7 +93,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to create contract with same owner and casher
         vm.expectRevert("Owner and casher cannot be the same address");
-        factory.createSubscribe(owner, owner, toAddress, salt);
+        factory.createPullPayment(owner, owner, toAddress, salt);
     }
 
     // Test compute address reverting when owner and casher are the same
@@ -102,7 +102,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to compute address with same owner and casher
         vm.expectRevert("Owner and casher cannot be the same address");
-        factory.computeSubscribeAddress(owner, owner, toAddress, salt);
+        factory.computePullPaymentAddress(owner, owner, toAddress, salt);
     }
     
     // Test reverting when casher and toAddress are the same
@@ -111,7 +111,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to create contract with same casher and toAddress
         vm.expectRevert("Casher and to address cannot be the same address");
-        factory.createSubscribe(owner, casher, casher, salt);
+        factory.createPullPayment(owner, casher, casher, salt);
     }
     
     // Test reverting when toAddress is zero
@@ -120,7 +120,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to create contract with zero toAddress
         vm.expectRevert("To address cannot be the zero address");
-        factory.createSubscribe(owner, casher, address(0), salt);
+        factory.createPullPayment(owner, casher, address(0), salt);
     }
     
     // Test reverting when casher is zero
@@ -129,7 +129,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to create contract with zero casher
         vm.expectRevert("Casher address cannot be the zero address");
-        factory.createSubscribe(owner, address(0), toAddress, salt);
+        factory.createPullPayment(owner, address(0), toAddress, salt);
     }
     
     // Test compute address reverting when casher and toAddress are the same
@@ -138,7 +138,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to compute address with same casher and toAddress
         vm.expectRevert("Casher and to address cannot be the same address");
-        factory.computeSubscribeAddress(owner, casher, casher, salt);
+        factory.computePullPaymentAddress(owner, casher, casher, salt);
     }
     
     // Test compute address reverting when toAddress is zero
@@ -147,7 +147,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to compute address with zero toAddress
         vm.expectRevert("To address cannot be the zero address");
-        factory.computeSubscribeAddress(owner, casher, address(0), salt);
+        factory.computePullPaymentAddress(owner, casher, address(0), salt);
     }
     
     // Test compute address reverting when casher is zero
@@ -156,7 +156,7 @@ contract SubscribeFactoryTest is Test {
 
         // Try to compute address with zero casher
         vm.expectRevert("Casher address cannot be the zero address");
-        factory.computeSubscribeAddress(owner, address(0), toAddress, salt);
+        factory.computePullPaymentAddress(owner, address(0), toAddress, salt);
     }
     
     // Test events for createSubscribe
@@ -164,7 +164,7 @@ contract SubscribeFactoryTest is Test {
         bytes32 salt = bytes32(uint256(14));
         
         // First calculate the address that will be created
-        address predictedAddress = factory.computeSubscribeAddress(
+        address predictedAddress = factory.computePullPaymentAddress(
             owner,
             casher,
             toAddress,
@@ -173,18 +173,18 @@ contract SubscribeFactoryTest is Test {
         
         // Now set up the expected event with the correct address
         vm.expectEmit(true, true, true, true);
-        emit SubscribeFactory.SubscribeCreated(predictedAddress, owner, casher, salt);
+        emit PullPaymentFactory.PullPaymentCreated(predictedAddress, owner, casher, salt);
         
         // Create the contract
-        address subscribeAddress = factory.createSubscribe(owner, casher, toAddress, salt);
+        address pullPaymentAddress = factory.createPullPayment(owner, casher, toAddress, salt);
         
         // Verify the address matches our prediction
-        assertEq(subscribeAddress, predictedAddress);
+        assertEq(pullPaymentAddress, predictedAddress);
         
-        // Verify Subscribe contract was created correctly
-        Subscribe subscribe = Subscribe(subscribeAddress);
-        assertEq(subscribe.owner(), owner);
-        assertEq(subscribe.casherAddress(), casher);
-        assertEq(subscribe.toAddress(), toAddress);
+        // Verify PullPayment contract was created correctly
+        PullPayment pullPayment = PullPayment(pullPaymentAddress);
+        assertEq(pullPayment.owner(), owner);
+        assertEq(pullPayment.casherAddress(), casher);
+        assertEq(pullPayment.toAddress(), toAddress);
     }
 }
