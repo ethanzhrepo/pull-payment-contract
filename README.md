@@ -4,6 +4,17 @@
 
 A smart contract for authorized ERC20 token deduction in subscription and service fee scenarios.
 
+![GitHub Release](https://img.shields.io/github/v/release/ethanzhrepo/pull-payment-contract)
+![GitHub Repo stars](https://img.shields.io/github/stars/ethanzhrepo/pull-payment-contract)
+![GitHub License](https://img.shields.io/github/license/ethanzhrepo/pull-payment-contract)
+
+
+<a href="https://t.me/ethanatca"><img alt="" src="https://img.shields.io/badge/Telegram-%40ethanatca-blue" /></a>
+<a href="https://x.com/intent/follow?screen_name=0x99_Ethan">
+<img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/0x99_Ethan">
+</a>
+
+
 ## Overview
 
 The Pull Payment contract provides a solution for services requiring regular subscription fees or on-demand charges from users using ERC20 tokens (such as USDC, DAI, or custom project tokens). It allows an authorized address (the "casher") to "pull" or "deduct" specified amounts of tokens from pre-authorized user addresses on behalf of a designated recipient address.

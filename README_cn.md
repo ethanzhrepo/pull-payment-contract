@@ -2,6 +2,16 @@
 
 一个用于订阅和服务费场景中授权 ERC20 代币扣除的智能合约。
 
+![GitHub Release](https://img.shields.io/github/v/release/ethanzhrepo/pull-payment-contract)
+![GitHub Repo stars](https://img.shields.io/github/stars/ethanzhrepo/pull-payment-contract)
+![GitHub License](https://img.shields.io/github/license/ethanzhrepo/pull-payment-contract)
+
+
+<a href="https://t.me/ethanatca"><img alt="" src="https://img.shields.io/badge/Telegram-%40ethanatca-blue" /></a>
+<a href="https://x.com/intent/follow?screen_name=0x99_Ethan">
+<img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/0x99_Ethan">
+</a>
+
 [English Version](README.md)
 
 ## 概述
