@@ -45,19 +45,23 @@ contract PullPaymentDeployer is Script {
         // Get factory instance
         factory = PullPaymentFactory(factoryAddress);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Calculate the predicted address
         address predictedAddress = factory.computePullPaymentAddress(
             ownerAddress,
-            casherAddress,
+            cashers,
             toAddress,
             salt
         );
         console.log("Predicted PullPayment contract address:", predictedAddress);
 
-        // Deploy Subscribe contract through factory
+        // Deploy PullPayment contract through factory
         address pullPaymentAddress = factory.createPullPayment(
             ownerAddress,
-            casherAddress,
+            cashers,
             toAddress,
             salt
         );
@@ -89,10 +93,14 @@ contract PullPaymentAddressCalculator is Script {
         // Get factory instance
         factory = PullPaymentFactory(factoryAddress);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Calculate the predicted address
         address predictedAddress = factory.computePullPaymentAddress(
             ownerAddress,
-            casherAddress,
+            cashers,
             toAddress,
             salt
         );
@@ -132,12 +140,16 @@ contract MultipleSaltCalculator is Script {
         console.log("  Casher:", casherAddress);
         console.log("  To Address:", toAddress);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Calculate addresses for multiple salts
         for (uint256 i = 0; i < count; i++) {
             bytes32 salt = bytes32(startSalt + i);
             address predictedAddress = factory.computePullPaymentAddress(
                 ownerAddress,
-                casherAddress,
+                cashers,
                 toAddress,
                 salt
             );

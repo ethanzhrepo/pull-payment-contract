@@ -28,8 +28,12 @@ contract PullPaymentScript is Script {
         // Begin broadcast with deployer's private key
         vm.startBroadcast(deployerPrivateKey);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Deploy PullPayment contract
-        pullPayment = new PullPayment(ownerAddress, casherAddress, toAddress);
+        pullPayment = new PullPayment(ownerAddress, cashers, toAddress);
 
         console.log("PullPayment contract deployed at:", address(pullPayment));
         console.log("Owner address:", ownerAddress);
@@ -80,10 +84,14 @@ contract CreatePullPaymentScript is Script {
         // Get factory instance
         factory = PullPaymentFactory(factoryAddress);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Compute address
         address predictedAddress = factory.computePullPaymentAddress(
             ownerAddress,
-            casherAddress,
+            cashers,
             toAddress,
             salt
         );
@@ -92,7 +100,7 @@ contract CreatePullPaymentScript is Script {
         // Create PullPayment contract
         address pullPaymentAddress = factory.createPullPayment(
             ownerAddress,
-            casherAddress,
+            cashers,
             toAddress,
             salt
         );
@@ -129,8 +137,12 @@ contract PullPaymentWithArgsScript is Script {
         // Begin broadcast with deployer's private key
         vm.startBroadcast(deployerPrivateKey);
 
+        // Prepare cashers array
+        address[] memory cashers = new address[](1);
+        cashers[0] = casherAddress;
+
         // Deploy PullPayment contract
-        pullPayment = new PullPayment(msg.sender, casherAddress, toAddress);
+        pullPayment = new PullPayment(msg.sender, cashers, toAddress);
 
         console.log("PullPayment contract deployed at:", address(pullPayment));
         console.log("Casher address set to:", casherAddress);
@@ -159,8 +171,8 @@ contract UpdatePullPaymentScript is Script {
 
         // Update configuration if provided
         if (casherAddress != address(0)) {
-            pullPayment.setCasherAddress(casherAddress);
-            console.log("Casher address updated to:", casherAddress);
+            pullPayment.addCasher(casherAddress);
+            console.log("Casher address added:", casherAddress);
         }
 
         if (toAddress != address(0)) {

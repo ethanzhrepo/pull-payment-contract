@@ -8,48 +8,59 @@ contract PullPaymentFactory {
     event PullPaymentCreated(
         address indexed pullPaymentAddress,
         address indexed owner,
-        address indexed casher,
+        address[] cashers,
         bytes32 salt
     );
 
     /**
-     * @dev Computes the address of a Subscribe contract that would be deployed using CREATE2
-     * @param _owner The owner address for the new Subscribe contract
-     * @param _casher The casher address for the new Subscribe contract
-     * @param _toAddress The to address for the new Subscribe contract
+     * @dev Computes the address of a PullPayment contract that would be deployed using CREATE2
+     * @param _owner The owner address for the new PullPayment contract
+     * @param _cashers The casher addresses for the new PullPayment contract
+     * @param _toAddress The to address for the new PullPayment contract
      * @param _salt A unique value to ensure unique addresses
      * @return The address where the contract will be deployed
      */
     function computePullPaymentAddress(
         address _owner,
-        address _casher,
+        address[] memory _cashers,
         address _toAddress,
         bytes32 _salt
     ) public view returns (address) {
-        require(
-            _owner != _casher,
-            "Owner and casher cannot be the same address"
-        );
-
-        require(
-            _casher != _toAddress,
-            "Casher and to address cannot be the same address"
-        );
+        require(_cashers.length > 0, "At least one casher is required");
         
         require(
             _toAddress != address(0),
             "To address cannot be the zero address"
         );
-        
-        require(
-            _casher != address(0),
-            "Casher address cannot be the zero address"
-        );
+
+        // Validate cashers
+        for (uint256 i = 0; i < _cashers.length; i++) {
+            require(
+                _cashers[i] != address(0),
+                "Casher address cannot be the zero address"
+            );
+            require(
+                _cashers[i] != _owner,
+                "Owner cannot be a casher"
+            );
+            require(
+                _cashers[i] != _toAddress,
+                "Casher and to address cannot be the same address"
+            );
+            
+            // Check for duplicates
+            for (uint256 j = i + 1; j < _cashers.length; j++) {
+                require(
+                    _cashers[i] != _cashers[j],
+                    "Duplicate casher address"
+                );
+            }
+        }
 
         bytes32 bytecodeHash = keccak256(
             abi.encodePacked(
                 type(PullPayment).creationCode,
-                abi.encode(_owner, _casher, _toAddress)
+                abi.encode(_owner, _cashers, _toAddress)
             )
         );
 
@@ -57,47 +68,58 @@ contract PullPaymentFactory {
     }
 
     /**
-     * @dev Creates a new Subscribe contract using CREATE2
-     * @param _owner The owner address for the new Subscribe contract
-     * @param _casher The casher address for the new Subscribe contract
-     * @param _toAddress The to address for the new Subscribe contract
+     * @dev Creates a new PullPayment contract using CREATE2
+     * @param _owner The owner address for the new PullPayment contract
+     * @param _cashers The casher addresses for the new PullPayment contract
+     * @param _toAddress The to address for the new PullPayment contract
      * @param _salt A unique value to ensure unique addresses
-     * @return The address of the created Subscribe contract
+     * @return The address of the created PullPayment contract
      */
     function createPullPayment(
         address _owner,
-        address _casher,
+        address[] memory _cashers,
         address _toAddress,
         bytes32 _salt
     ) public returns (address) {
-        require(
-            _owner != _casher,
-            "Owner and casher cannot be the same address"
-        );
-
-        require(
-            _casher != _toAddress,
-            "Casher and to address cannot be the same address"
-        );
+        require(_cashers.length > 0, "At least one casher is required");
         
         require(
             _toAddress != address(0),
             "To address cannot be the zero address"
         );
-        
-        require(
-            _casher != address(0),
-            "Casher address cannot be the zero address"
-        );
+
+        // Validate cashers
+        for (uint256 i = 0; i < _cashers.length; i++) {
+            require(
+                _cashers[i] != address(0),
+                "Casher address cannot be the zero address"
+            );
+            require(
+                _cashers[i] != _owner,
+                "Owner cannot be a casher"
+            );
+            require(
+                _cashers[i] != _toAddress,
+                "Casher and to address cannot be the same address"
+            );
+            
+            // Check for duplicates
+            for (uint256 j = i + 1; j < _cashers.length; j++) {
+                require(
+                    _cashers[i] != _cashers[j],
+                    "Duplicate casher address"
+                );
+            }
+        }
 
         bytes memory bytecode = abi.encodePacked(
             type(PullPayment).creationCode,
-            abi.encode(_owner, _casher, _toAddress)
+            abi.encode(_owner, _cashers, _toAddress)
         );
 
         address pullPaymentAddress = Create2.deploy(0, _salt, bytecode);
 
-        emit PullPaymentCreated(pullPaymentAddress, _owner, _casher, _salt);
+        emit PullPaymentCreated(pullPaymentAddress, _owner, _cashers, _salt);
 
         return pullPaymentAddress;
     }
