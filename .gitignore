@@ -15,3 +15,4 @@ docs/
 deploy/
 .vscode/
 
+.DS_Store

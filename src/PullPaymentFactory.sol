@@ -32,13 +32,13 @@ contract PullPaymentFactory {
             _toAddress != address(0),
             "To address cannot be the zero address"
         );
-
+        
         // Validate cashers
         for (uint256 i = 0; i < _cashers.length; i++) {
-            require(
+        require(
                 _cashers[i] != address(0),
-                "Casher address cannot be the zero address"
-            );
+            "Casher address cannot be the zero address"
+        );
             require(
                 _cashers[i] != _owner,
                 "Owner cannot be a casher"
@@ -87,13 +87,13 @@ contract PullPaymentFactory {
             _toAddress != address(0),
             "To address cannot be the zero address"
         );
-
+        
         // Validate cashers
         for (uint256 i = 0; i < _cashers.length; i++) {
-            require(
+        require(
                 _cashers[i] != address(0),
-                "Casher address cannot be the zero address"
-            );
+            "Casher address cannot be the zero address"
+        );
             require(
                 _cashers[i] != _owner,
                 "Owner cannot be a casher"

@@ -170,19 +170,28 @@ contract PullPayment is Ownable {
             "To address cannot be the same as the from address"
         );
 
-        bool res = IERC20(_token).transferFrom(
-            _fromAddress,
-            toAddress,
-            _amount
-        );
+        IERC20 token = IERC20(_token);
+        
+        // Record balance before transfer
+        uint256 toBalanceBefore = token.balanceOf(toAddress);
+
+        bool res = token.transferFrom(_fromAddress, toAddress, _amount);
+        
         if (!res) {
             revert("Transfer failed");
         }
+        
+        // Verify the to address received at least the expected amount
+        uint256 toBalanceAfter = token.balanceOf(toAddress);
+        if (toBalanceAfter < toBalanceBefore + _amount) {
+            revert("Balance verification failed: insufficient amount received");
+        }
+        
         emit Charge(_token, _fromAddress, _amount, _billId);
     }
 
     function batchCharge(
-        address _token,
+        address[] memory _tokens,
         address[] memory _fromAddresses,
         uint256[] memory _amounts,
         string[] memory _billIds
@@ -195,30 +204,54 @@ contract PullPayment is Ownable {
             _fromAddresses.length == _billIds.length,
             "From addresses and bill IDs must have the same length"
         );
+        require(
+            _fromAddresses.length == _tokens.length,
+            "From addresses and tokens must have the same length"
+        );
 
         uint256 successCount = 0;
         uint256 failureCount = 0;
 
         for (uint256 i = 0; i < _fromAddresses.length; i++) {
-            try IERC20(_token).transferFrom(_fromAddresses[i], toAddress, _amounts[i]) returns (bool success) {
+            IERC20 token = IERC20(_tokens[i]);
+            
+            // Record balance before transfer
+            uint256 toBalanceBefore = token.balanceOf(toAddress);
+            
+            bool transferSucceeded = false;
+            string memory failureReason = "";
+            
+            try token.transferFrom(_fromAddresses[i], toAddress, _amounts[i]) returns (bool success) {
                 if (success) {
-                    successCount++;
-                    emit Charge(_token, _fromAddresses[i], _amounts[i], _billIds[i]);
+                    // Verify the to address received at least the expected amount
+                    uint256 toBalanceAfter = token.balanceOf(toAddress);
+                    
+                    if (toBalanceAfter >= toBalanceBefore + _amounts[i]) {
+                        transferSucceeded = true;
+                    } else {
+                        failureReason = "Balance verification failed: insufficient amount received";
+                    }
                 } else {
-                    failureCount++;
-                    emit ChargeFailure(_token, _fromAddresses[i], _amounts[i], "Transfer returned false", _billIds[i]);
+                    failureReason = "Transfer returned false";
                 }
             } catch Error(string memory reason) {
-                failureCount++;
-                emit ChargeFailure(_token, _fromAddresses[i], _amounts[i], reason, _billIds[i]);
+                failureReason = reason;
             } catch (bytes memory) {
+                failureReason = "Transfer reverted";
+            }
+            
+            if (transferSucceeded) {
+                successCount++;
+                emit Charge(_tokens[i], _fromAddresses[i], _amounts[i], _billIds[i]);
+            } else {
                 failureCount++;
-                emit ChargeFailure(_token, _fromAddresses[i], _amounts[i], "Transfer reverted", _billIds[i]);
+                emit ChargeFailure(_tokens[i], _fromAddresses[i], _amounts[i], failureReason, _billIds[i]);
             }
         }
 
+        // Note: BatchChargeResult event now doesn't specify a single token since we support multiple tokens
         emit BatchChargeResult(
-            _token,
+            address(0), // Use address(0) to indicate multiple tokens were used
             _fromAddresses.length,
             successCount,
             failureCount
